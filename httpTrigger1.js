@@ -7,12 +7,10 @@ app.http('httpTrigger1', {
         context.log(`Http function processed request for url "${request.url}"`);
         let body = {};
                 
-        if (request.method === 'POST') {
-            try {
-                body = await request.json();
-            } catch (error) {
-                context.log('No valid JSON body provided, continuing with query parameters');
-            }
+        try {
+            body = await request.json();
+        } catch (error) {
+            context.log('No valid JSON body provided, continuing with query parameters');
         }
 
         const ingredientName = request.query.get('name') || body.name;

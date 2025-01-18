@@ -5,10 +5,18 @@ app.http('httpTrigger1', {
     authLevel: 'anonymous',
     handler: async (request, context) => {
         context.log(`Http function processed request for url "${request.url}"`);
-        const body = await request.json();
+        let body = {};
+                
+        if (request.method === 'POST') {
+            try {
+                body = await request.json();
+            } catch (error) {
+                context.log('No valid JSON body provided, continuing with query parameters');
+            }
+        }
 
-        const ingredientName = request.query.get('name') ||  body.name;
-        const recipePersons = request.query.get('persons')|| body.persons;
+        const ingredientName = request.query.get('name') || body.name;
+        const recipePersons = request.query.get('persons') || body.persons;
         const targetPersons = request.query.get('targetPersons') || body.targetPersons;
         const recipeWeight = request.query.get('weight') || body.weight;
 
@@ -19,7 +27,5 @@ app.http('httpTrigger1', {
         const targetWeight = (targetPersons / recipePersons) * recipeWeight;
 
         return { body: `Für ${targetPersons} Personen braucht man ${targetWeight} Gramm ${ingredientName}!` };
-
-
     }
 });
